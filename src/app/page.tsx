@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Zap, BarChart3, Loader2 } from 'lucide-react'
+import { Zap, BarChart3, Loader2, FileText, Database } from 'lucide-react'
 import UploadZone from '@/components/UploadZone'
 import DeviceList from '@/components/DeviceList'
 import RequirementsList from '@/components/RequirementsList'
@@ -17,6 +17,7 @@ export default function Home() {
   const [comparison, setComparison] = useState<any>(null)
   const [isAnalyzing, setIsAnalyzing] = useState<string | null>(null)
   const [isComparing, setIsComparing] = useState(false)
+  const [isLoadingPreset, setIsLoadingPreset] = useState(false)
   const [activeTab, setActiveTab] = useState<'results' | 'comparison'>('results')
 
   // Load initial data
@@ -45,6 +46,26 @@ export default function Home() {
       setDevices(data.devices || [])
     } catch (error) {
       console.error('Error loading devices:', error)
+    }
+  }
+
+  const loadPreset = async () => {
+    setIsLoadingPreset(true)
+    try {
+      const response = await fetch('/api/presets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ presetId: 'terminale_mobilne' })
+      })
+      const data = await response.json()
+      if (data.success) {
+        setRequirements(data.data.requirements)
+        setRequirementsLoaded(true)
+      }
+    } catch (error) {
+      console.error('Error loading preset:', error)
+    } finally {
+      setIsLoadingPreset(false)
     }
   }
 
@@ -152,12 +173,50 @@ export default function Home() {
               <span className="w-8 h-8 bg-teal-500/20 rounded-full flex items-center justify-center text-teal-400">1</span>
               Wymagania Minimalne
             </h2>
-            <UploadZone
-              type="requirements"
-              title="Wgraj dokument przetargowy"
-              description="PDF z tabelą 'Terminale mobilne' zawierającą wymagania minimalne"
-              onUploadSuccess={handleRequirementsUpload}
-            />
+
+            {/* Preset button */}
+            <div className="mb-4 p-4 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-xl border border-teal-500/20">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Database className="w-8 h-8 text-teal-400" />
+                  <div>
+                    <p className="font-medium text-white">Terminale mobilne</p>
+                    <p className="text-sm text-gray-400">25 parametrów przetargowych</p>
+                  </div>
+                </div>
+                <button
+                  onClick={loadPreset}
+                  disabled={isLoadingPreset || requirementsLoaded}
+                  className="btn-primary text-sm py-2 px-4 disabled:opacity-50"
+                >
+                  {isLoadingPreset ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : requirementsLoaded ? (
+                    'Załadowano'
+                  ) : (
+                    'Użyj presetu'
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/10"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-slate-800 text-gray-500">lub wgraj własny PDF</span>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <UploadZone
+                type="requirements"
+                title="Wgraj dokument przetargowy"
+                description="PDF z tabelą 'Terminale mobilne' zawierającą wymagania minimalne"
+                onUploadSuccess={handleRequirementsUpload}
+              />
+            </div>
             <RequirementsList requirements={requirements} loaded={requirementsLoaded} />
           </div>
 

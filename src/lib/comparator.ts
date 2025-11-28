@@ -166,15 +166,21 @@ function extractKeywords(text: string): string[] {
 }
 
 function textSimilarity(text1: string, text2: string): number {
-  const words1 = new Set(text1.split(/\s+/))
-  const words2 = new Set(text2.split(/\s+/))
+  const arr1 = text1.split(/\s+/)
+  const arr2 = text2.split(/\s+/)
+  const words1 = new Set(arr1)
+  const words2 = new Set(arr2)
 
   if (words1.size === 0 || words2.size === 0) return 0
 
-  const intersection = new Set([...words1].filter(x => words2.has(x)))
-  const union = new Set([...words1, ...words2])
+  let intersectionCount = 0
+  arr1.forEach(word => {
+    if (words2.has(word)) intersectionCount++
+  })
 
-  return intersection.size / union.size
+  const unionSet = new Set(arr1.concat(arr2))
+
+  return intersectionCount / unionSet.size
 }
 
 export function findMatchingParam(

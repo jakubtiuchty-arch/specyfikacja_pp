@@ -10,68 +10,92 @@ System pozwala na:
 3. Automatyczną analizę parametrów i porównanie z wymaganiami
 4. Generowanie raportów: **SPEŁNIA / NIE SPEŁNIA / DO WERYFIKACJI**
 
+## Technologie
+
+- **Framework**: Next.js 14 (App Router)
+- **Frontend**: React 18, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes (serverless)
+- **Ekstrakcja PDF**: pdf-parse
+- **Storage**: Vercel Blob (produkcja) / in-memory (dev)
+- **Hosting**: Vercel
+
 ## Struktura projektu
 
 ```
 specyfikacja_pp/
-├── backend/
+├── src/
 │   ├── app/
-│   │   ├── api/           # Endpointy REST API
-│   │   ├── core/          # Konfiguracja
-│   │   ├── models/        # Modele danych (Pydantic)
-│   │   └── services/      # Logika biznesowa
-│   ├── requirements.txt
-│   └── run.py
-├── frontend/
-│   ├── static/
-│   │   ├── css/
-│   │   └── js/
-│   └── templates/
-├── input/
-│   ├── wymagania/         # PDF z wymaganiami minimalnymi
-│   └── karty_katalogowe/  # Karty katalogowe urządzeń
-└── output/                # Wygenerowane raporty
+│   │   ├── api/              # API Routes (serverless)
+│   │   │   ├── upload/       # Upload plików
+│   │   │   ├── analyze/      # Analiza urządzeń
+│   │   │   ├── requirements/ # Wymagania minimalne
+│   │   │   ├── devices/      # Lista urządzeń
+│   │   │   └── compare/      # Porównanie urządzeń
+│   │   ├── page.tsx          # Strona główna
+│   │   ├── layout.tsx        # Layout
+│   │   └── globals.css       # Style globalne
+│   ├── components/           # Komponenty React
+│   ├── lib/                  # Logika biznesowa
+│   │   ├── pdf-parser.ts     # Parsowanie PDF
+│   │   ├── comparator.ts     # Porównywanie parametrów
+│   │   └── storage.ts        # Abstakcja storage
+│   └── types/                # TypeScript types
+├── package.json
+├── vercel.json               # Konfiguracja Vercel
+└── tailwind.config.ts
 ```
 
-## Instalacja
+## Instalacja lokalna
 
 ```bash
-# 1. Przejdź do folderu backend
-cd backend
+# 1. Zainstaluj zależności
+npm install
 
-# 2. Stwórz virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# lub: venv\Scripts\activate  # Windows
-
-# 3. Zainstaluj zależności
-pip install -r requirements.txt
+# 2. Uruchom serwer deweloperski
+npm run dev
 ```
 
-## Uruchomienie
+Aplikacja będzie dostępna pod: http://localhost:3000
+
+## Deploy na Vercel
+
+### Opcja 1: Vercel CLI
 
 ```bash
-# Z folderu backend
-python run.py
+# 1. Zainstaluj Vercel CLI
+npm i -g vercel
 
-# Lub bezpośrednio przez uvicorn
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# 2. Zaloguj się
+vercel login
+
+# 3. Deploy
+vercel
 ```
 
-Aplikacja będzie dostępna pod: http://localhost:8000
+### Opcja 2: GitHub Integration
+
+1. Pushuj kod na GitHub
+2. Połącz repo z Vercel: https://vercel.com/new
+3. Vercel automatycznie zbuduje i wdroży aplikację
+
+### Konfiguracja Storage (opcjonalne)
+
+Dla trwałego przechowywania plików na produkcji:
+
+1. Wejdź w Vercel Dashboard → Storage → Create → Blob
+2. Skopiuj `BLOB_READ_WRITE_TOKEN`
+3. Dodaj jako Environment Variable w ustawieniach projektu
 
 ## API Endpoints
 
 | Metoda | Endpoint | Opis |
 |--------|----------|------|
-| POST | `/api/upload/requirements` | Upload PDF z wymaganiami |
-| POST | `/api/upload/device` | Upload karty katalogowej |
-| POST | `/api/analyze/{filename}` | Analiza pojedynczego urządzenia |
-| POST | `/api/analyze-all` | Analiza wszystkich urządzeń |
+| POST | `/api/upload` | Upload PDF (type: 'requirements' lub 'device') |
+| POST | `/api/analyze` | Analiza urządzenia (deviceId lub analyzeAll) |
 | GET | `/api/requirements` | Pobranie wymagań |
 | GET | `/api/devices` | Lista wgranych urządzeń |
-| GET | `/api/compare` | Porównanie urządzeń |
-| DELETE | `/api/device/{filename}` | Usunięcie urządzenia |
+| DELETE | `/api/devices?id=` | Usunięcie urządzenia |
+| GET | `/api/compare` | Porównanie wszystkich urządzeń |
 
 ## Jak używać
 
@@ -91,12 +115,6 @@ Aplikacja będzie dostępna pod: http://localhost:8000
 - **SPEŁNIA** - parametr urządzenia spełnia wymaganie minimalne
 - **NIE SPEŁNIA** - parametr nie spełnia wymagania
 - **DO WERYFIKACJI** - wymaga manualnej weryfikacji (niejednoznaczne dane)
-
-## Technologie
-
-- **Backend**: Python 3.10+, FastAPI, pdfplumber
-- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Ekstrakcja PDF**: pdfplumber
 
 ## Licencja
 

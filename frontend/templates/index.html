@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizator Specyfikacji Terminali</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Analizator Specyfikacji Terminali Mobilnych</h1>
+            <p class="subtitle">Automatyczna analiza zgodności z wymaganiami przetargowymi</p>
+        </header>
+
+        <main>
+            <!-- Krok 1: Upload wymagań -->
+            <section class="card" id="requirements-section">
+                <h2>1. Wymagania Minimalne</h2>
+                <p>Wgraj PDF z tabelą "Terminale mobilne" zawierającą wymagania minimalne</p>
+
+                <div class="upload-zone" id="requirements-drop">
+                    <input type="file" id="requirements-file" accept=".pdf" hidden>
+                    <div class="upload-content">
+                        <span class="upload-icon">📄</span>
+                        <p>Przeciągnij PDF lub <button onclick="document.getElementById('requirements-file').click()">wybierz plik</button></p>
+                    </div>
+                </div>
+
+                <div id="requirements-status" class="status"></div>
+                <div id="requirements-details" class="details hidden"></div>
+            </section>
+
+            <!-- Krok 2: Upload kart katalogowych -->
+            <section class="card" id="devices-section">
+                <h2>2. Karty Katalogowe Urządzeń</h2>
+                <p>Wgraj karty katalogowe urządzeń do analizy</p>
+
+                <div class="upload-zone" id="devices-drop">
+                    <input type="file" id="devices-file" accept=".pdf" multiple hidden>
+                    <div class="upload-content">
+                        <span class="upload-icon">📱</span>
+                        <p>Przeciągnij PDF(y) lub <button onclick="document.getElementById('devices-file').click()">wybierz pliki</button></p>
+                    </div>
+                </div>
+
+                <div id="devices-list" class="file-list"></div>
+            </section>
+
+            <!-- Krok 3: Analiza -->
+            <section class="card" id="analysis-section">
+                <h2>3. Analiza i Porównanie</h2>
+
+                <div class="button-group">
+                    <button id="analyze-btn" class="btn btn-primary" onclick="analyzeAll()">
+                        Analizuj wszystkie urządzenia
+                    </button>
+                    <button id="compare-btn" class="btn btn-secondary" onclick="compareDevices()">
+                        Porównaj urządzenia
+                    </button>
+                </div>
+
+                <div id="analysis-progress" class="progress hidden">
+                    <div class="progress-bar"></div>
+                    <span class="progress-text">Analizowanie...</span>
+                </div>
+            </section>
+
+            <!-- Wyniki -->
+            <section class="card" id="results-section">
+                <h2>4. Wyniki Analizy</h2>
+                <div id="results-container"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>System Analizy Specyfikacji Przetargowych v1.0</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

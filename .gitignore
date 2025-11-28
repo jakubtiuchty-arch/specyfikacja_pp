@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Output files
+output/*.json
+
+# Uploaded files (opcjonalnie - odkomentuj jeśli nie chcesz commitować)
+# input/wymagania/*.pdf
+# input/karty_katalogowe/*.pdf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

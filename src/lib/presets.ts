@@ -1,6 +1,6 @@
 import { RequirementsData } from '@/types'
 
-// Preset wymagań minimalnych dla terminali mobilnych
+// Pełny preset wymagań minimalnych dla terminali mobilnych
 // Na podstawie dokumentu przetargowego
 export const TERMINALE_MOBILNE_PRESET: RequirementsData = {
   nazwa_tabeli: 'Terminale mobilne',
@@ -127,7 +127,87 @@ export const TERMINALE_MOBILNE_PRESET: RequirementsData = {
     },
     {
       nazwa: 'Odporność na upadki',
-      wymaganie_minimalne: 'Wielokrotne na beton z wysokości powyżej 1,0 m',
+      wymaganie_minimalne: 'Wielokrotne na beton z wysokości powyżej 1,0 m w zakresie temperatur pracy urządzenia, czyli od -10 do +50 st.C',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Odporność na wstrząsy',
+      wymaganie_minimalne: 'Odporne zgodnie z IEC 600-2-64 lub nie gorszy – może być inna norma, ale odporność nie gorsza',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Akumulator litowo-jonowy, wymienny jako tylna klapa urządzenia',
+      wymaganie_minimalne: 'Min. 3500 mAh',
+      typ_porownania: 'min'
+    },
+    {
+      nazwa: 'Czas pracy akumulatora',
+      wymaganie_minimalne: 'Gwarancja min. 12 miesięcy',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Klawiatura',
+      wymaganie_minimalne: 'Min. 10-12 godzin ciągłej pracy przy działających modułach GSM + GPS',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Klawisze nawigacyjne',
+      wymaganie_minimalne: 'Ekranowa (nie fizyczna)',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Klawisze funkcyjne',
+      wymaganie_minimalne: 'Fizyczne w kolorze innym niż obudowa lub podświetlane haptyczne zintegrowane z obudową położone pod ekranem urządzenia',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Uchwyt pistoletowy',
+      wymaganie_minimalne: 'Jako opcja',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'LCD – kolor, dotykowy, pojemnościowy – obsługa palcem lub rysikiem',
+      wymaganie_minimalne: 'Jako dodatkowe akcesorium montowane w specjalnym uchwycie pistoletowym bez wcześniejszego demontażu elementów',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'LCD – rozdzielczość',
+      wymaganie_minimalne: 'Min. 5,5" do max 6,5"',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'LCD – szkło',
+      wymaganie_minimalne: 'Min. 1080 x 1920 pix',
+      typ_porownania: 'min'
+    },
+    {
+      nazwa: 'Imager 2D',
+      wymaganie_minimalne: 'Gorilla Glass',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Kody 1D min.',
+      wymaganie_minimalne: 'Odczyt 1D i 2D',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Kody 2D min.',
+      wymaganie_minimalne: 'EAN8, EAN13, EAN 128 (GS1-128) CODABAR, Standard 2 of 5, Interleaved z przełożeniem 2 of 5, Code 39, Code 128, EAN 2 ISSN/ISBN',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Sygnalizacja po odczytaniu kodu - dźwiękowa',
+      wymaganie_minimalne: 'Dźwiękowa',
+      typ_porownania: 'boolean'
+    },
+    {
+      nazwa: 'Sygnalizacja po odczytaniu kodu - świetlna',
+      wymaganie_minimalne: 'Świetlna - opcjonalnie',
+      typ_porownania: 'contains'
+    },
+    {
+      nazwa: 'Sygnalizacja po odczytaniu kodu - wibracyjna',
+      wymaganie_minimalne: 'Opcjonalnie',
       typ_porownania: 'contains'
     }
   ],

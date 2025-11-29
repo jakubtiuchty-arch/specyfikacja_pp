@@ -181,7 +181,7 @@ export default function Home() {
                   <Database className="w-8 h-8 text-teal-400" />
                   <div>
                     <p className="font-medium text-white">Terminale mobilne</p>
-                    <p className="text-sm text-gray-400">25 parametrów przetargowych</p>
+                    <p className="text-sm text-gray-400">41 parametrów przetargowych</p>
                   </div>
                 </div>
                 <button

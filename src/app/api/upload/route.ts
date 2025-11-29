@@ -5,6 +5,7 @@ import {
   parseTableFromText,
   extractDeviceParameters
 } from '@/lib/pdf-parser'
+import { analyzeDeviceWithAI, isOpenAIConfigured } from '@/lib/openai-analyzer'
 import { saveRequirements, saveDevicePDF } from '@/lib/storage'
 import { RequirementsData } from '@/types'
 
@@ -13,6 +14,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const type = formData.get('type') as string // 'requirements' | 'device'
+    const useAI = formData.get('useAI') === 'true'
 
     if (!file) {
       return NextResponse.json(
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
       if (requirements.length === 0) {
         return NextResponse.json({
           success: false,
-          error: 'Nie znaleziono wymagań w PDF. Upewnij się, że plik zawiera tabelę z kolumnami "Parametr" i "Wymagania minimalne"'
+          error: 'Nie znaleziono wymagań w PDF. Użyj presetu "Terminale mobilne" zamiast uploadu.'
         }, { status: 400 })
       }
 
@@ -64,20 +66,54 @@ export async function POST(request: NextRequest) {
       })
 
     } else if (type === 'device') {
-      // Zapisz tekst PDF urządzenia
       const id = file.name.replace('.pdf', '').replace(/\s+/g, '_')
-      await saveDevicePDF(id, file.name, text)
+      let parameters: any[] = []
+      let aiUsed = false
+      let deviceName = id
+      let producent = ''
 
-      // Wstępnie wyciągnij parametry
-      const parameters = extractDeviceParameters(text)
+      // Próbuj AI analizy jeśli włączone i skonfigurowane
+      if (useAI && isOpenAIConfigured()) {
+        console.log('Using OpenAI to analyze device catalog...')
+        const aiResult = await analyzeDeviceWithAI(text)
+
+        if (aiResult && aiResult.parametry.length > 0) {
+          parameters = aiResult.parametry
+          deviceName = aiResult.nazwa_urzadzenia || id
+          producent = aiResult.producent || ''
+          aiUsed = true
+          console.log(`AI extracted ${parameters.length} parameters`)
+        }
+      }
+
+      // Fallback do podstawowej ekstrakcji
+      if (parameters.length === 0) {
+        parameters = extractDeviceParameters(text)
+      }
+
+      // Zapisz dane urządzenia (tekst + wyekstrahowane parametry)
+      const deviceData = JSON.stringify({
+        text,
+        parameters,
+        deviceName,
+        producent,
+        aiUsed
+      })
+      await saveDevicePDF(id, file.name, deviceData)
 
       return NextResponse.json({
         success: true,
-        message: `Wgrano kartę katalogową: ${file.name}`,
+        message: aiUsed
+          ? `AI przeanalizował kartę katalogową: ${deviceName} (${parameters.length} parametrów)`
+          : `Wgrano kartę katalogową: ${file.name} (${parameters.length} parametrów)`,
         data: {
           id,
           name: file.name,
-          parametersFound: parameters.length
+          deviceName,
+          producent,
+          parametersFound: parameters.length,
+          aiUsed,
+          parameters: parameters.slice(0, 10) // Preview pierwszych 10
         }
       })
 

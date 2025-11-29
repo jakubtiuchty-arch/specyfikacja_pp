@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getRequirements, getDevicePDF, listDevices, saveReport } from '@/lib/storage'
 import { extractDeviceParameters } from '@/lib/pdf-parser'
 import { compareParameter, findMatchingParam } from '@/lib/comparator'
-import { AnalysisReport, ComparisonResult } from '@/types'
+import { AnalysisReport, ComparisonResult, DeviceParameter } from '@/types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     if (!requirements || requirements.parametry.length === 0) {
       return NextResponse.json({
         success: false,
-        error: 'Najpierw wgraj plik z wymaganiami minimalnymi'
+        error: 'Najpierw załaduj wymagania minimalne (użyj presetu lub wgraj PDF)'
       }, { status: 400 })
     }
 
@@ -77,7 +77,26 @@ async function analyzeDevice(
   const deviceData = await getDevicePDF(deviceId)
   if (!deviceData) return null
 
-  const deviceParams = extractDeviceParameters(deviceData.content)
+  let deviceParams: DeviceParameter[] = []
+  let deviceName = deviceData.name.replace('.pdf', '')
+  let aiUsed = false
+
+  // Sprawdź czy dane są w formacie JSON (nowy format z AI)
+  try {
+    const parsed = JSON.parse(deviceData.content)
+    if (parsed.parameters && Array.isArray(parsed.parameters)) {
+      deviceParams = parsed.parameters
+      deviceName = parsed.deviceName || deviceName
+      aiUsed = parsed.aiUsed || false
+    } else {
+      // Stary format - czysty tekst
+      deviceParams = extractDeviceParameters(deviceData.content)
+    }
+  } catch {
+    // Nie JSON - stary format, użyj podstawowej ekstrakcji
+    deviceParams = extractDeviceParameters(deviceData.content)
+  }
+
   const results: ComparisonResult[] = []
 
   for (const req of requirements) {
@@ -100,7 +119,7 @@ async function analyzeDevice(
   }
 
   return {
-    nazwa_urzadzenia: deviceData.name.replace('.pdf', ''),
+    nazwa_urzadzenia: deviceName + (aiUsed ? ' (AI)' : ''),
     data_analizy: new Date().toISOString(),
     plik_zrodlowy: deviceData.name,
     wyniki: results,

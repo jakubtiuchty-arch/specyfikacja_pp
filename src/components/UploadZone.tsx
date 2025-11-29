@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Upload, FileText, Check, AlertCircle } from 'lucide-react'
+import { Upload, FileText, Check, AlertCircle, Sparkles } from 'lucide-react'
 import clsx from 'clsx'
 
 interface UploadZoneProps {
@@ -22,6 +22,7 @@ export default function UploadZone({
   const [isDragging, setIsDragging] = useState(false)
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
+  const [useAI, setUseAI] = useState(true) // Domyślnie włączone dla device
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -44,9 +45,12 @@ export default function UploadZone({
     const formData = new FormData()
     formData.append('file', file)
     formData.append('type', type)
+    if (type === 'device' && useAI) {
+      formData.append('useAI', 'true')
+    }
 
     setStatus('uploading')
-    setMessage('Przesyłanie...')
+    setMessage(useAI && type === 'device' ? 'AI analizuje kartę katalogową...' : 'Przesyłanie...')
 
     try {
       const response = await fetch('/api/upload', {
@@ -91,7 +95,7 @@ export default function UploadZone({
     } else {
       await uploadFile(pdfFiles[0])
     }
-  }, [type, multiple, onUploadSuccess])
+  }, [type, multiple, onUploadSuccess, useAI])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -114,6 +118,23 @@ export default function UploadZone({
         <h3 className="text-lg font-semibold text-teal-400">{title}</h3>
         <p className="text-gray-400 text-sm mt-1">{description}</p>
       </div>
+
+      {/* AI Toggle dla kart katalogowych */}
+      {type === 'device' && (
+        <label className="flex items-center gap-3 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20 cursor-pointer hover:bg-purple-500/15 transition-colors">
+          <input
+            type="checkbox"
+            checked={useAI}
+            onChange={(e) => setUseAI(e.target.checked)}
+            className="w-4 h-4 accent-purple-500"
+          />
+          <Sparkles className="w-5 h-5 text-purple-400" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-white">Analiza AI (GPT-4)</p>
+            <p className="text-xs text-gray-400">Automatyczne rozpoznawanie parametrów z PDF</p>
+          </div>
+        </label>
+      )}
 
       <div
         className={clsx(
@@ -138,7 +159,11 @@ export default function UploadZone({
         <div className="flex flex-col items-center gap-3">
           {status === 'uploading' ? (
             <div className="animate-pulse">
-              <Upload className="w-12 h-12 text-teal-400" />
+              {useAI && type === 'device' ? (
+                <Sparkles className="w-12 h-12 text-purple-400" />
+              ) : (
+                <Upload className="w-12 h-12 text-teal-400" />
+              )}
             </div>
           ) : (
             <FileText className="w-12 h-12 text-teal-500/50" />
